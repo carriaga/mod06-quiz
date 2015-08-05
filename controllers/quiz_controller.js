@@ -36,7 +36,7 @@ exports.answer = function(req, res) {
 // GET /quizes/new
 exports.new = function(req, res) {
 	var quiz = models.Quiz.build( // Crear un objeto quiz no persistente
-			{pregunta: 'Pregunta', respuesta: 'Respuesta', tema: 'Tema'}
+			{pregunta: 'Pregunta', respuesta: 'Respuesta', tema: 'otro'}
 			);
 			
 	res.render('quizes/new', { quiz: quiz, errors: [] });
@@ -73,6 +73,7 @@ exports.update = function(req, res) {
 	
 	quiz.pregunta = req.body.quiz.pregunta;
 	quiz.respuesta = req.body.quiz.respuesta;
+	quiz.tema = req.body.quiz.tema;
 	
 	quiz.validate().then(
 		function(err) {
