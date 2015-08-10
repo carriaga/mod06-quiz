@@ -12,9 +12,22 @@ exports.load = function(req, res, next, quizId) {
 
 // GET /quizes
 exports.index = function(req, res) {
-	models.Quiz.findAll().then(function(quizes) {
+
+	var funcion_quizes = function(quizes) {
 		res.render('quizes/index.ejs', { quizes: quizes, errors: []});
-	})
+	}
+	
+	if(req.query.search === undefined) {
+		// Devolver todas las preguntas.
+		models.Quiz.findAll().then(funcion_quizes);
+	}
+	else {
+		// Devolver las buscadas.
+		var filter = '%' + req.query.search + '%';
+		
+		models.Quiz.findAll({where: ["pregunta like ?", filter]}).
+			then(funcion_quizes);		
+	}
 };
 
 // GET /quizes/:quizId
