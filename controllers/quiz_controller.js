@@ -2,7 +2,10 @@ var models = require('../models/models.js');
 
 // Autoload - factoriza el código si ruta incluye :quizId
 exports.load = function(req, res, next, quizId) {
-	models.Quiz.find(quizId).then(function(quiz) {
+	models.Quiz.find({
+					where: {id: Number(quizId)},
+					include: [{model: models.Comment}]
+		}).then(function(quiz) {
 		if (quiz) {
 			req.quiz = quiz;
 			next();
@@ -14,7 +17,7 @@ exports.load = function(req, res, next, quizId) {
 exports.index = function(req, res) {
 
 	var funcion_quizes = function(quizes) {
-		res.render('quizes/index.ejs', { quizes: quizes, errors: []});
+		res.render('quizes/index.ejs', { quizes: quizes.sort(), errors: []});
 	}
 	
 	if(req.query.search === undefined) {
@@ -23,7 +26,7 @@ exports.index = function(req, res) {
 	}
 	else {
 		// Devolver las buscadas.
-		var filter = '%' + req.query.search + '%';
+		var filter = '%' + req.query.search.replace(/ /g, '%') + '%';
 		
 		models.Quiz.findAll({where: ["pregunta like ?", filter]}).
 			then(funcion_quizes);		
