@@ -44,7 +44,7 @@ app.use(function(req, res, next){
 			var lapso = (fechaAccesoActual - ultimoAcceso) / 1000; 
 			console.log('Lapso (s): ' + lapso);
 			
-			if(lapso > 5) {
+			if(lapso > 120) {
 				var expirado = true;
 				console.log('La sesión ha expirado');
 
