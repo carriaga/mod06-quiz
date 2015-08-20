@@ -27,6 +27,54 @@ app.use(session());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Autologout
+app.use(function(req, res, next){
+	var expirado = false;
+	
+	if(req.session.user){
+		console.log('Usuario en session: ' + req.session.user.username);
+		if(req.session.fechaUltimoAcceso) {
+			var fechaAccesoActual = new Date();
+			var ultimoAcceso = new Date(req.session.fechaUltimoAcceso);
+			
+			console.log('Último acceso: ' + ultimoAcceso);
+			console.log('Acceso actual: ' + fechaAccesoActual);
+			
+			// Comprobar el tiempo transcurrido desde el acceso anterior.
+			var lapso = (fechaAccesoActual - ultimoAcceso) / 1000; 
+			console.log('Lapso (s): ' + lapso);
+			
+			if(lapso > 5) {
+				var expirado = true;
+				console.log('La sesión ha expirado');
+
+				// Hacer visible req.session en las vistas.
+				res.locals.session = req.session;
+				
+				var sessionController = require('./controllers/session_controller');
+				sessionController.destroy(req, res);
+		
+			} else {
+				req.session.fechaUltimoAcceso = fechaAccesoActual;
+				console.log('Nuevo acceso a la sesión en el plazo autorizado: ' + req.session.fechaUltimoAcceso);
+			}
+			
+		} else {
+			req.session.fechaUltimoAcceso = new Date();
+			console.log('Primer acceso a la sesión: ' + req.session.fechaUltimoAcceso);
+		}
+		
+		var hora = new Date();
+	}
+	else {
+		console.log('Fuera de sesión');
+	}
+	
+	if(!expirado) {
+		next();
+	}
+});
+
 // Helpers dinámicos.
 app.use(function(req, res, next){
 	
